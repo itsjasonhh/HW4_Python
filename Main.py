@@ -315,7 +315,7 @@ def rerun_small(c, state):
     step = 0
     command = c
     while True:
-        if step > 10000:
+        if step >= 10000:
             break
         if not (type(command) == Skip):
             command, state = command.run_small(state)
@@ -326,7 +326,7 @@ def rerun_small(c, state):
 
 
 
-a = commandParser('while (z<40) do {z := (z+1)*2}').Seq()
+a = commandParser('if false then while true do skip else x:=2').Seq()
 rerun_small(a, {})
 
 
