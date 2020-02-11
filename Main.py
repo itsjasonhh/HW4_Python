@@ -18,7 +18,8 @@ class Variable(AExpr):
         self.var = char_name
     def eval(self, state):
         if not (self.var in state):
-            return None
+            state[self.var] = 0
+            return 0
         else:
             return state[self.var]
     def __str__(self):
@@ -147,6 +148,8 @@ class Assign(Commands):
         return state
     def __str__(self):
         return self.var + " := " + str(self.value)
+    def run_small(self,state):
+        return (Skip, self.run(state))
 
 class If(Commands):
     def __init__(self,b,c1,c2):
@@ -158,6 +161,11 @@ class If(Commands):
             return self.Command1.run(state)
         else:
             return self.Command2.run(state)
+    def run_small(self,state):
+        if self.BExpr.eval(state):
+            return (self.Command1, state)
+        else:
+            return (self.Command2, state)
     def __str__(self):
         return "if " + str(self.BExpr) + " then { " + str(self.Command1) + " } else { " + str(self.Command2) + " }"
 class While(Commands):
@@ -172,6 +180,11 @@ class While(Commands):
             return state
     def __str__(self):
         return "while " + str(self.BExpr) + " do { " + str(self.Command) + " }"
+    def run_small(self,state):
+        if not self.BExpr.eval(state):
+            return (Skip, state)
+        else:
+            return (Seq(self.Command, self), state)
 class Seq(Commands):
     def __init__(self, c1, c2):
         self.Command1 = c1
@@ -180,6 +193,12 @@ class Seq(Commands):
         return self.Command2.run(self.Command1.run(state))
     def __str__(self):
         return str(self.Command1) + ' ; ' + str(self.Command2)
+    def run_small(self,state):
+        if not (type(self.Command1) == Skip):
+            Command1_prime, state_prime = self.Command1.run_small(state)
+            return (Seq(Command1_prime,self.Command2), state_prime)
+        else:
+            return (self.Command2, state)
 
 def makeLiteralInteger(x):
     return LiteralInteger(x)
@@ -269,10 +288,20 @@ Seq = (Command:c1 ';' Command:c2 -> makeSeq(c1,c2)
 
      }
 )
-a = commandParser('whilex<3dox:=4;ifx>3thenx:=x+1elsex:=2').Seq()
+def print_dict(d):
+    l = sorted(d.keys())
+    ret = "{"
+    list = []
+    for i in l:
+        list.append(i + " → " + str(d[i]) )
+    ret += ", ".join(list)
+    ret += "}"
+    return ret
+a = commandParser('whilex=0dox:=3').Seq()
 d={}
-d["x"] = 10
-print(a.run(d))
-print(type(a))
+print(a.run_small(d))
+
+
+
 
 
