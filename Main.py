@@ -166,29 +166,14 @@ class Seq(Commands):
     def run(self,state):
         return self.Command2.run(self.Command1.run(state))
 
-assignParser = parsley.makeGrammar("""
-num = <digit+>:ds -> int(ds)
-char = <letter+>:ds -> str(ds)
-expr = char:var ":=" (
-'-' num:n -> var, -n
-|num:n -> var, n
-)
-""",{}
-)
-
-skipParser = parsley.makeGrammar("""
-skip = "skip":n -> n
-
-""",{}
-)
-
 commandParser = parsley.makeGrammar("""
 num = <digit+>:ds -> int(ds)
 char = <letter+>:ds -> str(ds)
 AExpr = (
-        AExpr:a1 '+' AExpr:a2 -> a1, a2
-        |AExpr:a1 '-' AExpr:a2 -> a1, a2
-        |AExpr:a1 '*' AExpr:a2 -> a1, a2
+        '-' AExpr:a1 -> -a1
+        |AExpr:a1 '+' AExpr:a2 -> a1, a2, '+'
+        |AExpr:a1 '-' AExpr:a2 -> a1, a2, '-'
+        |AExpr:a1 '*' AExpr:a2 -> a1, a2, '*'
         |char:n -> n
         |num:n -> n
         )
@@ -206,13 +191,15 @@ Command = (
         "while" BExpr:b "do" Command:c -> b, c
         |Command:c1 ';' Command:c2 -> c1, c2
         |"skip":n -> n
-        |char:n ":=" AExpr:a -> n, a
+        |char:var ":=" (
+                '-' num:n -> var, -n
+                |num:n -> var, n)
         |"if" BExpr:b "then" Command:c1 "else" Command:c2 -> b, c1, c2
         )
-expr = "if" BExpr:b "then" Command:c1 "else" Command:c2 -> b, c1, c2
 """,{}
 )
-print(commandParser('skip;skip;ifb>0thenskipelsex:=x+1').Command())
+print(commandParser('x:=-10').Command())
+
 
 
 
