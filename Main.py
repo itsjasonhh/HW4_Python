@@ -33,7 +33,7 @@ class Sum(AExpr):
         return self.AExpr1.eval(state) + self.AExpr2.eval(state)
 
     def __str__(self):
-        return self.AExpr1 + '+' + self.AExpr2
+        return str(self.AExpr1) + '+' + str(self.AExpr2)
 
 class Diff(AExpr):
     def __init__(self, a1, a2):
@@ -43,7 +43,7 @@ class Diff(AExpr):
     def eval(self, state):
         return self.AExpr1.eval(state) - self.AExpr2.eval(state)
     def __str__(self):
-        return self.Aexpr1 + '-' + self.AExpr2
+        return str(self.AExpr1) + '-' + str(self.AExpr2)
 
 class Product(AExpr):
     def __init__(self, a1, a2):
@@ -53,14 +53,17 @@ class Product(AExpr):
         return self.AExpr1.eval(state) * self.AExpr2.eval(state)
 
     def __str__(self):
-        return self.AExpr1 + '*' + self.AExpr2
+        return str(self.AExpr1) + '*' + str(self.AExpr2)
 
 class BExpr:
     pass
 
 class LiteralBoolean(BExpr):
     def __init__(self, p):
-        self.value = p
+        if p == 'false':
+            self.value = False
+        if p == 'true':
+            self.value = True
     def eval(self,state):
         return self.value
     def __str__(self):
@@ -74,7 +77,7 @@ class Equals(BExpr):
         return self.AExpr1.eval(state) == self.AExpr2.eval(state)
 
     def __str__(self):
-        return self.AExpr1 + '=' + self.AExpr2
+        return str(self.AExpr1) + '=' + str(self.AExpr2)
 
 class Less(BExpr):
     def __init__(self,a1,a2):
@@ -84,7 +87,7 @@ class Less(BExpr):
         return self.AExpr1.eval(state) < self.AExpr2.eval(state)
 
     def __str__(self):
-        return self.AExpr1 + '<' + self.AExpr2
+        return str(self.AExpr1) + '<' + str(self.AExpr2)
 
 class Greater(BExpr):
     def __init__(self,a1,a2):
@@ -93,7 +96,7 @@ class Greater(BExpr):
     def eval(self, state):
         return self.AExpr1.eval(state) > self.AExpr2.eval(state)
     def __str__(self):
-        return self.AExpr1 +'>' + self.AExpr2
+        return str(self.AExpr1) +'>' + str(self.AExpr2)
 
 class And(BExpr):
     def __init__(self,b1,b2):
@@ -103,7 +106,7 @@ class And(BExpr):
         return self.BExpr1.eval(state) and self.BExpr2.eval(state)
 
     def __str__(self):
-        return self.BExpr1 + '∧' + self.BExpr2
+        return str(self.BExpr1) + '∧' + str(self.BExpr2)
 
 class Or(BExpr):
     def __init__(self, b1, b2):
@@ -113,7 +116,7 @@ class Or(BExpr):
         return self.BExpr1.eval(state) or self.BExpr2.eval(state)
 
     def __str__(self):
-        return self.BExpr1 + '∨' + self.BExpr2
+        return str(self.BExpr1) + '∨' + str(self.BExpr2)
 class Not(BExpr):
     def __init__(self, b):
         self.BExpr = b
@@ -122,21 +125,25 @@ class Not(BExpr):
         return not self.BExpr.eval(state)
 
     def __str__(self):
-        return '¬' + self.BExpr
+        return '¬' + str(self.BExpr)
 class Commands:
     pass
 
 class Skip(Commands):
     def run(self, state):
         return state
+    def __str__(self):
+        return "skip"
 
 class Assign(Commands):
     def __init__(self,var,a):
         self.var = var
         self.value = a
     def run(self, state):
-        state[self.var] = self.value
+        state[self.var] = self.value.eval(state)
         return state
+    def __str__(self):
+        return self.var + " := " + str(self.value)
 
 class If(Commands):
     def __init__(self,b,c1,c2):
@@ -148,6 +155,8 @@ class If(Commands):
             return self.Command1.run(state)
         else:
             return self.Command2.run(state)
+    def __str__(self):
+        return "if " + str(self.BExpr) + " then " + str(self.Command1) + " else " + str(self.Command2)
 class While(Commands):
     def __init__(self, b, c):
         self.BExpr = b
@@ -158,48 +167,104 @@ class While(Commands):
             return self.run(new_state)
         else:
             return state
-
+    def __str__(self):
+        return "while " + str(self.BExpr) + " do " + str(self.Command)
 class Seq(Commands):
     def __init__(self, c1, c2):
         self.Command1 = c1
         self.Command2 = c2
     def run(self,state):
         return self.Command2.run(self.Command1.run(state))
+    def __str__(self):
+        return str(self.Command1) + ' ; ' + str(self.Command2)
 
+def makeLiteralInteger(x):
+    return LiteralInteger(x)
+def makeVariable(char):
+    return Variable(char)
+def makeSum(a1,a2):
+    return Sum(a1,a2)
+def makeDiff(a1,a2):
+    return Diff(a1,a2)
+def makeProduct(a1,a2):
+    return Product(a1,a2)
+def makeAnd(b1,b2):
+    return And(b1,b2)
+def makeOr(b1,b2):
+    return Or(b1,b2)
+def makeEquals(a1,a2):
+    return Equals(a1,a2)
+def makeLess(a1,a2):
+    return Less(a1,a2)
+def makeGreater(a1,a2):
+    return Greater(a1,a2)
+def makeNot(b):
+    return Not(b)
+def makeLiteralBoolean(n):
+    return LiteralBoolean(n)
+def makeWhile(b,c):
+    return While(b,c)
+def makeSeq(c1,c2):
+    return Seq(c1,c2)
+def makeSkip():
+    return Skip()
+def makeIf(b,c1,c2):
+    return If(b,c1,c2)
+def makeAssign(var, a):
+    return Assign(var, a)
 commandParser = parsley.makeGrammar("""
 num = <digit+>:ds -> int(ds)
 char = <letter+>:ds -> str(ds)
 AExpr = (
         '-' AExpr:a1 -> -a1
-        |AExpr:a1 '+' AExpr:a2 -> a1, a2, '+'
-        |AExpr:a1 '-' AExpr:a2 -> a1, a2, '-'
-        |AExpr:a1 '*' AExpr:a2 -> a1, a2, '*'
-        |char:n -> n
-        |num:n -> n
+        |AExpr:a1 '+' AExpr:a2 -> makeSum(a1,a2)
+        |AExpr:a1 '-' AExpr:a2 -> makeDiff(a1,a2)
+        |AExpr:a1 '*' AExpr:a2 -> makeProduct(a1,a2)
+        |char:n -> makeVariable(n)
+        |num:n -> makeLiteralInteger(n)
         )
 BExpr = (
-        BExpr:b1 '∧' BExpr:b2 -> b1, b2
-        |BExpr:b1 '∨' BExpr:b2 -> b1, b2
-        |AExpr:a1 '=' AExpr:a2 -> a1, a2
-        |AExpr:a1 '<' AExpr:a2 -> a1, a2
-        |AExpr:a1 '>' AExpr:a2 -> a1, a2
-        |'¬'BExpr:b -> b
-        |"true":n -> n
-        |"false":n -> n
+        BExpr:b1 '∧' BExpr:b2 -> makeAnd(b1,b2)
+        |BExpr:b1 '∨' BExpr:b2 -> makeOr(b1,b2)
+        |AExpr:a1 '=' AExpr:a2 -> makeEquals(a1,a2)
+        |AExpr:a1 '<' AExpr:a2 -> makeLess(a1,a2)
+        |AExpr:a1 '>' AExpr:a2 -> makeGreater(a1,a2)
+        |'¬'BExpr:b -> makeNot(b)
+        |"true":n -> makeLiteralBoolean(n)
+        |"false":n -> makeLiteralBoolean(n)
         )
 Command = (
-        "while" BExpr:b "do" Command:c -> b, c
-        |Command:c1 ';' Command:c2 -> c1, c2
-        |"skip":n -> n
+        "while" BExpr:b "do" Command:c -> makeWhile(b,c)
+        |Command:c1 ';' Command:c2 -> makeSeq(c1,c2)
+        |"skip":n -> makeSkip()
         |char:var ":=" (
-                '-' num:n -> var, -n
-                |num:n -> var, n)
-        |"if" BExpr:b "then" Command:c1 "else" Command:c2 -> b, c1, c2
+                '-' AExpr:n -> makeAssign(var, -n)
+                |AExpr:n -> makeAssign(var, n)
+                )
+        |"if" BExpr:b "then" Command:c1 "else" Command:c2 -> makeIf(b,c1,c2)
         )
-""",{}
-)
-print(commandParser('x:=-10').Command())
+""",{"makeLiteralInteger": makeLiteralInteger,
+     "makeVariable": makeVariable,
+     "makeSum": makeSum,
+     "makeDiff": makeDiff,
+     "makeProduct": makeProduct,
+     "makeAnd": makeAnd,
+     "makeOr": makeOr,
+     "makeEquals": makeEquals,
+     "makeLess": makeLess,
+     "makeGreater": makeGreater,
+     "makeNot": makeNot,
+     "makeLiteralBoolean": makeLiteralBoolean,
+     "makeWhile": makeWhile,
+     "makeSeq": makeSeq,
+     "makeSkip": makeSkip,
+     "makeIf": makeIf,
+     "makeAssign": makeAssign
 
+     }
+)
+a = commandParser('whiley<10dox:=10;x:=5').Command()
+print(a)
 
 
 
