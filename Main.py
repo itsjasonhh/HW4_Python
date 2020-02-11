@@ -246,15 +246,18 @@ Aparens = '(' ws? AExpr:e ws? ')' -> e
 Bparens = '(' ws? BExpr:e ws? ')' -> e
 Braces = '{' ws? Seq:e ws? '}' -> e
 AExpr = (
-        '-' ws? AExpr:a1 -> -a1
+        Aparens:a -> a
+        |'-' ws? AExpr:a1 -> -a1
         |AExpr:a1 ws? '+' ws? AExpr:a2 -> makeSum(a1,a2)
         |AExpr:a1 ws? '-' ws? AExpr:a2 -> makeDiff(a1,a2)
         |AExpr:a1 ws? '*' ws? AExpr:a2 -> makeProduct(a1,a2)
         |char:n -> makeVariable(n)
         |num:n -> makeLiteralInteger(n)
+        
         )
 BExpr = (
-        BExpr:b1 ws? '∧' ws? BExpr:b2 -> makeAnd(b1,b2)
+        Bparens:b -> b
+        |BExpr:b1 ws? '∧' ws? BExpr:b2 -> makeAnd(b1,b2)
         |BExpr:b1 ws? '∨' ws? BExpr:b2 -> makeOr(b1,b2)
         |AExpr:a1 ws? '=' ws? AExpr:a2 -> makeEquals(a1,a2)
         |AExpr:a1 ws? '<' ws? AExpr:a2 -> makeLess(a1,a2)
@@ -262,9 +265,11 @@ BExpr = (
         |'¬' ws? BExpr:b -> makeNot(b)
         |"true":n -> makeLiteralBoolean(n)
         |"false":n -> makeLiteralBoolean(n)
+        
         )
 Command = (
-        "while" ws? BExpr:b ws? "do" ws? Command:c -> makeWhile(b,c)
+        Braces:c -> c
+        |"while" ws? BExpr:b ws? "do" ws? Command:c -> makeWhile(b,c)
         
         |"skip":n -> makeSkip()
         |char:var ws? ":=" (
@@ -321,7 +326,7 @@ def rerun_small(c, state):
 
 
 
-a = commandParser('while ¬(x  < 0) do x := -1').Seq()
+a = commandParser('while (z<40) do {z := (z+1)*2}').Seq()
 rerun_small(a, {})
 
 
