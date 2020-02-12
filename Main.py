@@ -241,18 +241,19 @@ def makeAssign(var, a):
     return Assign(var, a)
 commandParser = parsley.makeGrammar("""
 num = <digit+>:ds -> int(ds)
+integer = (num:k -> k
+            |'-'num:k -> -k)
 char = <letter+>:ds -> str(ds)
 Aparens = '(' ws? AExpr:e ws? ')' -> e
 Bparens = '(' ws? BExpr:e ws? ')' -> e
 Braces = '{' ws? Seq:e ws? '}' -> e
 AExpr = (
         Aparens:a -> a
-        |'-' ws? AExpr:a1 -> -a1
+        |integer:n -> makeLiteralInteger(n)
         |AExpr:a1 ws? '+' ws? AExpr:a2 -> makeSum(a1,a2)
         |AExpr:a1 ws? '-' ws? AExpr:a2 -> makeDiff(a1,a2)
         |AExpr:a1 ws? '*' ws? AExpr:a2 -> makeProduct(a1,a2)
         |char:n -> makeVariable(n)
-        |num:n -> makeLiteralInteger(n)
         
         )
 BExpr = (
@@ -273,8 +274,8 @@ Command = (
         
         |"skip":n -> makeSkip()
         |char:var ws? ":=" (
-                ws? '-' ws? AExpr:n -> makeAssign(var, -n)
-                |ws? AExpr:n -> makeAssign(var, n)
+                
+                ws? AExpr:n -> makeAssign(var, n)
                 )
         |"if" ws? BExpr:b ws? "then" ws?  Command:c1 ws? "else" ws? Command:c2 -> makeIf(b,c1,c2)
         )
@@ -324,9 +325,8 @@ def rerun_small(c, state):
             break
         step += 1
 
-
-
-a = commandParser('if false then while true do skip else x:=2').Seq()
+a = commandParser('while ¬(x  < 0) do x := -1').Seq()
 rerun_small(a, {})
 
+#print(commandParser('while ¬(x  < 0) do x := -1').Seq())
 
