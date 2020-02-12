@@ -197,7 +197,7 @@ class Seq(Commands):
     def run(self,state):
         return self.Command2.run(self.Command1.run(state))
     def __repr__(self):
-        return str(self.Command1) + ' ; ' + str(self.Command2)
+        return str(self.Command1) + '; ' + str(self.Command2)
     def run_small(self,state):
         if not (type(self.Command1) == Skip):
             Command1_prime, state_prime = self.Command1.run_small(state)
@@ -325,7 +325,7 @@ def rerun_small(c, state):
             break
         step += 1
 
-a = commandParser('while ¬(x  < 0) do x := -1').Seq()
+a = commandParser('{ while true do x:= x-3 }').Seq()
 rerun_small(a, {})
 
 #print(commandParser('while ¬(x  < 0) do x := -1').Seq())
