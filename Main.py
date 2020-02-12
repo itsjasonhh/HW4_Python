@@ -282,7 +282,7 @@ Command = (
                 )
         |"if" ws? BExpr:b ws? "then" ws?  Command:c1 ws? "else" ws? Command:c2 -> makeIf(b,c1,c2)
         )
-Seq = (Command:c1 ws? ';' ws? Command:c2 -> makeSeq(c1,c2)
+Seq = (Seq:c1 ws? ';' ws? Seq:c2 -> makeSeq(c1,c2)
         |Command:c1 -> c1
         )
 """,{"makeLiteralInteger": makeLiteralInteger,
@@ -331,4 +331,5 @@ def rerun_small(c, state):
 a = commandParser(input()).Seq()
 rerun_small(a, {})
 
-
+#a = commandParser('i:=5; fact := 1; while 0<i do { fact := fact * i; i := i - 1 }').Seq()
+#rerun_small(a,{})
