@@ -244,7 +244,9 @@ commandParser = parsley.makeGrammar("""
 num = <digit+>:ds -> int(ds)
 integer = (num:k -> k
             |'-'num:k -> -k)
-char = <letter+>:ds -> str(ds)
+firstchar = <letter>:ds -> str(ds)
+char = (firstchar:x <letterOrDigit+>:y -> x + str(y)
+        |firstchar:x -> x)
 Aparens = '(' ws? AExpr:e ws? ')' -> e
 Bparens = '(' ws? BExpr:e ws? ')' -> e
 Braces = '{' ws? Seq:e ws? '}' -> e
