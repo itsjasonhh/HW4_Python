@@ -1,5 +1,6 @@
+#!/usr/bin/env python3
+
 import parsley
-import sys
 
 class AExpr:
     pass
@@ -320,13 +321,12 @@ def rerun_small(c, state):
             break
         if not (type(command) == Skip):
             command, state = command.run_small(state)
-            print("⇒" + str(command) + ", " + print_dict(state))
+            print("⇒ " + str(command) + ", " + print_dict(state))
         else:
             break
         step += 1
 
-a = commandParser('{ while true do x:= x-3 }').Seq()
+a = commandParser(input()).Seq()
 rerun_small(a, {})
 
-#print(commandParser('while ¬(x  < 0) do x := -1').Seq())
 
