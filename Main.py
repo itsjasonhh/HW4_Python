@@ -328,7 +328,7 @@ def rerun_small(c, state):
             break
         step += 1
 
-#a = commandParser(input()).Seq()
+
 contents = []
 while True:
     try:
@@ -337,9 +337,11 @@ while True:
         break
     contents.append(line)
 lines = ''.join(contents)
+
 a = commandParser(lines).Seq()
 rerun_small(a,{})
 
+#since 3+k is an AExpr, it is being put in parenthesis when it shouldn't
 
 
 
