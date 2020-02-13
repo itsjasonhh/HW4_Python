@@ -251,23 +251,22 @@ Aparens = '(' ws? AExpr:e ws? ')' -> e
 Bparens = '(' ws? BExpr:e ws? ')' -> e
 Braces = '{' ws? Seq:e ws? '}' -> e
 AExpr = (
-        Aparens:a -> a
-
-        |AExpr:a1 ws? '+' ws? AExpr:a2 -> makeSum(a1,a2)
+        AExpr:a1 ws? '+' ws? AExpr:a2 -> makeSum(a1,a2)
         |AExpr:a1 ws? '-' ws? AExpr:a2 -> makeDiff(a1,a2)
         |AExpr:a1 ws? '*' ws? AExpr:a2 -> makeProduct(a1,a2)
+        |Aparens:a -> a
         |integer:n -> makeLiteralInteger(n)
         |char:n -> makeVariable(n)
         
         )
 BExpr = (
-        Bparens:b -> b
-        |BExpr:b1 ws? '∧' ws? BExpr:b2 -> makeAnd(b1,b2)
+        BExpr:b1 ws? '∧' ws? BExpr:b2 -> makeAnd(b1,b2)
         |BExpr:b1 ws? '∨' ws? BExpr:b2 -> makeOr(b1,b2)
         |AExpr:a1 ws? '=' ws? AExpr:a2 -> makeEquals(a1,a2)
         |AExpr:a1 ws? '<' ws? AExpr:a2 -> makeLess(a1,a2)
         |AExpr:a1 ws? '>' ws? AExpr:a2 -> makeGreater(a1,a2)
         |'¬' ws? BExpr:b -> makeNot(b)
+        |Bparens:b -> b
         |"true":n -> makeLiteralBoolean(n)
         |"false":n -> makeLiteralBoolean(n)
         
@@ -333,5 +332,4 @@ a = commandParser(input()).Seq()
 rerun_small(a, {})
 
 
-#rerun_small(a,{})
 
