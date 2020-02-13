@@ -329,7 +329,19 @@ def rerun_small(c, state):
         step += 1
 
 a = commandParser(input()).Seq()
-rerun_small(a, {})
+# a = commandParser('a := 98;
+# b := 76;
+# while ¬(a=b) do {
+# if a < b then
+# b := b - a
+# else
+# a := a - b
+# }').Seq()
+#for above, parentheses get messed up. It prints out (49*(3+k)) instead of ((49*3)+k)
+rerun_small(a,{})
+
+
+
 
 
 
