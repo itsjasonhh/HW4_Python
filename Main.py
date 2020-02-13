@@ -252,10 +252,11 @@ Bparens = '(' ws? BExpr:e ws? ')' -> e
 Braces = '{' ws? Seq:e ws? '}' -> e
 AExpr = (
         Aparens:a -> a
-        |integer:n -> makeLiteralInteger(n)
+
         |AExpr:a1 ws? '+' ws? AExpr:a2 -> makeSum(a1,a2)
         |AExpr:a1 ws? '-' ws? AExpr:a2 -> makeDiff(a1,a2)
         |AExpr:a1 ws? '*' ws? AExpr:a2 -> makeProduct(a1,a2)
+        |integer:n -> makeLiteralInteger(n)
         |char:n -> makeVariable(n)
         
         )
@@ -331,5 +332,6 @@ def rerun_small(c, state):
 a = commandParser(input()).Seq()
 rerun_small(a, {})
 
-#a = commandParser('i:=5; fact := 1; while 0<i do { fact := fact * i; i := i - 1 }').Seq()
+
 #rerun_small(a,{})
+
