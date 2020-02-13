@@ -328,16 +328,16 @@ def rerun_small(c, state):
             break
         step += 1
 
-a = commandParser(input()).Seq()
-# a = commandParser('a := 98;
-# b := 76;
-# while ¬(a=b) do {
-# if a < b then
-# b := b - a
-# else
-# a := a - b
-# }').Seq()
-#for above, parentheses get messed up. It prints out (49*(3+k)) instead of ((49*3)+k)
+#a = commandParser(input()).Seq()
+contents = []
+while True:
+    try:
+        line = input()
+    except EOFError:
+        break
+    contents.append(line)
+lines = ''.join(contents)
+a = commandParser(lines).Seq()
 rerun_small(a,{})
 
 
